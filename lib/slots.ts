@@ -1,5 +1,5 @@
 export const SLOTS = Array.from({ length: 15 }, (_, index) => {
-  const start = 9 * 60 + index * (15 + 1);
+  const start = 9 * 60 + index * 15;
   const end = start + 15;
   const fmt = (minutes: number) => {
     const hour = Math.floor(minutes / 60);
