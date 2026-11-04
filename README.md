@@ -5,12 +5,11 @@ Bright Harbor Healthcare's registration site for the HOPES Mommy & Me photo sess
 ## Features
 
 - Fifteen 15-minute appointments starting every 15 minutes from 9:00 a.m. to 12:30 p.m. Eastern Time. The last session ends at 12:45 p.m.
+- Photo day is Sunday, November 22, 2026, at Salt Bridge Farm, 1525 Silverton Road, Toms River, NJ. Everyone who registers receives 3–5 photos.
 - Registration with first name, last name, email, and phone.
 - Netlify Database stores reservations. A unique database constraint prevents two bookings for one slot.
 - Occupied slots show as **Full**.
 - Tonya Molhem and Rebecca Kaul can sign in to view registrants.
-
-The event date is **To be announced** until confirmed. Update the date in `app/page.tsx` and deploy again when it is known.
 
 ## Netlify setup
 
