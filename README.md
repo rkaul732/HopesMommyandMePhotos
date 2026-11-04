@@ -4,7 +4,7 @@ Bright Harbor Healthcare's registration site for the HOPES Mommy & Me photo sess
 
 ## Features
 
-- Fifteen 16-minute appointments from 9:00 a.m. to 1:00 p.m. Eastern Time.
+- Fifteen 15-minute appointments from 9:00 a.m. to 12:59 p.m. Eastern Time, with one minute between appointments.
 - Registration with first name, last name, email, and phone.
 - Netlify Database stores reservations. A unique database constraint prevents two bookings for one slot.
 - Occupied slots show as **Full**.
