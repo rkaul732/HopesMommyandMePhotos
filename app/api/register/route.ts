@@ -12,7 +12,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "Please complete every field and choose an available time." }, { status: 400 });
   }
   try {
-    await getDb().sql`INSERT INTO registrations (slot, first_name, last_name, email, phone) VALUES (${Number(slot)}, ${firstName}, ${lastName}, ${email}, ${phone})`;
+    const rows = await getDb().sql<{ slot: number }>`INSERT INTO registrations (slot, first_name, last_name, email, phone)
+      SELECT ${Number(slot)}, ${firstName}, ${lastName}, ${email}, ${phone}
+      WHERE EXISTS (SELECT 1 FROM events WHERE legacy_kind = 'photos' AND active = TRUE)
+      RETURNING slot`;
+    if (!rows.length) return Response.json({ error: "Registration for this event is closed." }, { status: 409 });
     return Response.json({ ok: true, slot }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";

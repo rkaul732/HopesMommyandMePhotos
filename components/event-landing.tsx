@@ -1,50 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import type { EventItem } from "../lib/events";
+import { dateLabel, eventPath, remaining, timeLabel } from "../lib/events";
 import { Footer, Header, Hero } from "./site-shell";
-
-type Counts = { photos: number | null; music: number | null };
-
 export default function EventLanding() {
-  const [counts, setCounts] = useState<Counts>({ photos: null, music: null });
-  const refresh = useCallback(async () => {
-    const [photos, music] = await Promise.allSettled([
-      fetch("/api/availability", { cache: "no-store" }).then(async r => { if (!r.ok) throw new Error(); return (await r.json() as { fullSlots: number[] }).fullSlots.length; }),
-      fetch("/api/music/availability", { cache: "no-store" }).then(async r => { if (!r.ok) throw new Error(); return (await r.json() as { registered: number }).registered; }),
-    ]);
-    setCounts({ photos: photos.status === "fulfilled" ? photos.value : null, music: music.status === "fulfilled" ? music.value : null });
-  }, []);
-  useEffect(() => {
-    const update = () => { if (document.visibilityState === "visible") void refresh(); };
-    void refresh();
-    document.addEventListener("visibilitychange", update);
-    const interval = window.setInterval(update, 30_000);
-    return () => { document.removeEventListener("visibilitychange", update); window.clearInterval(interval); };
-  }, [refresh]);
-  return <div className="site">
-    <Header active="events"/>
-    <main>
-      <Hero title={<>HOPES <em>Events</em></>} description="Make memories together. Choose an upcoming HOPES event and reserve your place."/>
-      <section className="content">
-        <div className="heading"><div><span className="eyebrow">UPCOMING EVENTS</span><h2>Choose your event</h2><p>Select an event below to see the details and register.</p></div></div>
-        <div className="event-grid">
-          <article className="event-card">
-            <span className="event-kind">PHOTOS</span>
-            <h3>Mommy &amp; Me Photos</h3>
-            <p>A 15-minute photo session together. Everyone who registers will receive 3–5 photos.</p>
-            <dl><div><dt>Date</dt><dd>Sunday, November 22, 2026</dd></div><div><dt>Time</dt><dd>9:00 AM – 1:00 PM</dd></div><div><dt>Place</dt><dd>Salt Bridge Farm, 1521 Silverton Road, Toms River, NJ</dd></div></dl>
-            <div className="event-card-bottom"><span className={`event-count ${counts.photos === 15 ? "is-full" : ""}`}>{counts.photos === null ? "Checking availability…" : counts.photos === 15 ? "Registration full" : `${15 - counts.photos} of 15 times available`}</span><Link className="event-link" href="/mommy-and-me-photos">View event <span aria-hidden="true">→</span></Link></div>
-          </article>
-          <article className="event-card">
-            <span className="event-kind">MUSIC</span>
-            <h3>Mommy &amp; Me Music Class</h3>
-            <p>Make music and enjoy time together at our HOPES Mommy &amp; Me class.</p>
-            <dl><div><dt>Date</dt><dd>Wednesday, November 25, 2026</dd></div><div><dt>Time</dt><dd>9:30 AM</dd></div><div><dt>Capacity</dt><dd>10 registrations</dd></div></dl>
-            <div className="event-card-bottom"><span className={`event-count ${counts.music === 10 ? "is-full" : ""}`}>{counts.music === null ? "Checking availability…" : counts.music === 10 ? "Registration full" : `${10 - counts.music} of 10 spots available`}</span><Link className="event-link" href="/mommy-and-me-music">View event <span aria-hidden="true">→</span></Link></div>
-          </article>
-        </div>
-      </section>
-    </main>
-    <Footer/>
-  </div>;
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const refresh = useCallback(async () => { try { const response = await fetch("/api/events",{cache:"no-store"}); if (!response.ok) throw new Error(); const data = await response.json() as {events:EventItem[]}; setEvents(data.events); setStatus("ready"); } catch { setStatus("error"); } },[]);
+  useEffect(()=>{ const update=()=>{if(document.visibilityState === "visible") void refresh();}; void refresh(); document.addEventListener("visibilitychange",update); const timer=window.setInterval(update,30000); return ()=>{document.removeEventListener("visibilitychange",update);window.clearInterval(timer);}; },[refresh]);
+  return <div className="site"><Header active="events"/><main><Hero title={<>HOPES <em>Events</em></>} description="Make memories together. Choose an upcoming HOPES event and reserve your place."/><section className="content"><div className="heading"><div><span className="eyebrow">UPCOMING EVENTS</span><h2>Choose your event</h2><p>Select an event below to see the details and register.</p></div></div>{status === "loading" ? <p>Loading events…</p> : status === "error" ? <div className="panel"><p>Events are temporarily unavailable. Please try again shortly.</p><button className="secondary" onClick={()=>void refresh()}>Try again</button></div> : events.length === 0 ? <div className="panel"><p>No events are currently open for registration. Please check back soon.</p></div> : <div className="event-grid">{events.map(event=>{const open=remaining(event);const time=event.startTime ? `${timeLabel(event.startTime)}${event.endTime ? ` – ${timeLabel(event.endTime)}` : ""}` : "";return <article className="event-card" key={event.slug}><span className="event-kind">{event.mode === "appointment" ? "APPOINTMENTS" : "EVENT"}</span><h3>{event.title}</h3><p>{event.legacyKind === "photos" ? "A 15-minute photo session together. Everyone who registers will receive 3–5 photos." : event.legacyKind === "music" ? "Make music and enjoy time together at our HOPES Mommy & Me class." : event.mode === "appointment" ? `Choose a ${event.appointmentMinutes}-minute appointment.` : "Register to attend this HOPES event."}</p><dl><div><dt>Date</dt><dd>{dateLabel(event.date)}</dd></div>{time && <div><dt>Time</dt><dd>{time}</dd></div>}{event.address && <div><dt>Place</dt><dd>{event.address}</dd></div>}{event.capacity !== null && <div><dt>Capacity</dt><dd>{event.capacity} registrations</dd></div>}</dl><div className="event-card-bottom"><span className={`event-count ${open === 0 ? "is-full" : ""}`}>{open === 0 ? "Registration full" : event.capacity !== null || event.mode === "appointment" ? `${open} ${event.mode === "appointment" ? "times" : "spots"} available` : "Registration open"}</span><Link className="event-link" href={eventPath(event)}>View event <span aria-hidden="true">→</span></Link></div></article>})}</div>}</section></main><Footer/></div>;
 }

@@ -15,7 +15,7 @@ export async function passwordMatches(value: string) {
 export async function createAdminCookie(email: string) {
   const expires = Math.floor(Date.now() / 1000) + 8 * 60 * 60;
   const payload = `${email}|${expires}`;
-  (await cookies()).set(cookieName, `${payload}|${await signature(payload)}`, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 8 * 60 * 60 });
+  (await cookies()).set(cookieName, `${payload}|${await signature(payload)}`, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 8 * 60 * 60 });
 }
 export async function clearAdminCookie() { (await cookies()).delete(cookieName); }
 export async function getAdminEmail() {

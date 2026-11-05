@@ -2,18 +2,24 @@
 
 Bright Harbor Healthcare's public registration site for HOPES events at https://hopesevents.netlify.app.
 
-## Events
+## Public registration
 
-- **Mommy & Me Photos:** Sunday, November 22, 2026, at Salt Bridge Farm, 1521 Silverton Road, Toms River, NJ. Fifteen 15-minute photo sessions start every 15 minutes from 9:00 a.m. through 12:30 p.m. Each registration receives 3–5 photos. A unique slot constraint prevents double booking.
-- **Mommy & Me Music Class:** Wednesday, November 25, 2026, at 9:30 a.m. Ten registrations for one class, without individual appointment times. A unique spot constraint caps registrations at ten.
+- The homepage lists active events. Each event has its own registration link.
+- Mommy & Me Photos remains on November 22, 2026 at Salt Bridge Farm, 1521 Silverton Road, Toms River, NJ, with fifteen 15-minute appointments and 3–5 photos per registration.
+- Mommy & Me Music Class remains on November 25, 2026 at 9:30 a.m., with ten total places.
+- Registrants enter first name, last name, email, and phone. Full appointment times are unavailable; capped general events close at capacity. Deactivated events disappear from the homepage and their direct links stop accepting registrations.
 
-The homepage lists both events and shows current availability. Event pages collect first name, last name, email, and phone. Full photo times are disabled; music registration closes when all ten spots fill. The `/admin` page lets the two authorized staff members view registrants by event.
+## Admin
+
+Tonya Molhem and Rebecca Kaul can sign in at `/admin` to view registrants by event. The **Create New Registration / Manage Events** link opens `/admin/events`, where they can create a registration link, deactivate an event, or reactivate one. Event creation asks for title, date, address, registration type, optional times for general attendance, required start/end times and appointment length for appointments, and an optional whole-number total registration cap. Each appointment time accepts one registration.
+
+The existing photo and music registrations remain in their original tables. New events use `events` and `event_registrations`; the SQL migration seeds the original two events for management without moving their registrants. A row lock and unique appointment index enforce limits during simultaneous submissions.
 
 The previous URL, https://hopesphotos.netlify.app, is a separate Netlify project that permanently redirects all paths to the matching path on the current site.
 
 ## Netlify setup
 
-This Next.js application uses `npm run build` and `.next` as its publish directory in `netlify.toml`. Netlify Database applies SQL migrations from `netlify/database/migrations/` on production deploys. The existing photo table is preserved when adding the music table.
+This Next.js application uses `npm run build` and `.next` as its publish directory in `netlify.toml`. Netlify Database applies SQL migrations from `netlify/database/migrations/` on production deploys.
 
 The Netlify project needs these secret environment variables with Functions scope:
 
@@ -24,4 +30,4 @@ Do not put the values in Git or `netlify.toml`.
 
 ## Local development
 
-Requires Node.js 22.13 or newer. Install dependencies with `npm ci`, then run `npm run dev` for the frontend. Use `netlify dev` and `netlify database migrations apply` for local database-backed routes. Run `npm run typecheck` and `npm run build` before deploying.
+Requires Node.js 22.13 or newer. Install dependencies with `npm ci`, then run `netlify dev` for the full site and `netlify database migrations apply` for the local database. Run `npm run typecheck` and `npm run build` before deploying.

@@ -16,11 +16,14 @@ export async function POST(request: Request) {
         SELECT candidate, ${firstName}, ${lastName}, ${email}, ${phone}
         FROM generate_series(0, 9) AS candidate
         WHERE NOT EXISTS (SELECT 1 FROM music_registrations WHERE spot = candidate)
+          AND EXISTS (SELECT 1 FROM events WHERE legacy_kind = 'music' AND active = TRUE)
         ORDER BY candidate LIMIT 1
         ON CONFLICT (spot) DO NOTHING
         RETURNING spot`;
       if (rows.length) return Response.json({ ok: true }, { status: 201 });
       const count = await getDb().sql<{ registered: number }>`SELECT COUNT(*)::int AS registered FROM music_registrations`;
+      const state = await getDb().sql<{ active: boolean }>`SELECT active FROM events WHERE legacy_kind = 'music'`;
+      if (!state[0]?.active) return Response.json({ error: "Registration for this class is closed." }, { status: 409 });
       if ((count[0]?.registered ?? 0) >= 10) return Response.json({ error: "Registration is full for this class." }, { status: 409 });
     }
     return Response.json({ error: "Please try registering again." }, { status: 503 });
