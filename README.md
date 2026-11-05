@@ -6,7 +6,7 @@ Bright Harbor Healthcare's public registration site for HOPES events at https://
 
 - The homepage lists active events. Each event has its own registration link.
 - Mommy & Me Photos remains on November 22, 2026 at Salt Bridge Farm, 1521 Silverton Road, Toms River, NJ, with fifteen 15-minute appointments and 3–5 photos per registration.
-- Mommy & Me Music Class remains on November 25, 2026 at 9:30 a.m., with ten total places.
+- Mommy & Me Music Class remains on November 25, 2026 at 9:30 a.m., hosted by The Harmony Nest, with ten total places.
 - Registrants enter first name, last name, email, and phone. Full appointment times are unavailable; capped general events close at capacity. Deactivated events disappear from the homepage and their direct links stop accepting registrations.
 
 ## Admin
