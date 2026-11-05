@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mommy & Me Photos | HOPES",
-  description: "Reserve a Mommy & Me photo session with the HOPES program at Bright Harbor Healthcare.",
+  title: "HOPES Events | Bright Harbor Healthcare",
+  description: "Register for HOPES events with Bright Harbor Healthcare.",
 };
 
 export default function RootLayout({

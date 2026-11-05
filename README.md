@@ -1,29 +1,27 @@
-# HOPES Mommy & Me Photos
+# HOPES Events
 
-Bright Harbor Healthcare's registration site for the HOPES Mommy & Me photo sessions.
+Bright Harbor Healthcare's public registration site for HOPES events at https://hopesevents.netlify.app.
 
-## Features
+## Events
 
-- Fifteen 15-minute appointments starting every 15 minutes from 9:00 a.m. to 12:30 p.m. Eastern Time. The last session ends at 12:45 p.m.
-- Photo day is Sunday, November 22, 2026, at Salt Bridge Farm, 1521 Silverton Road, Toms River, NJ. Everyone who registers receives 3–5 photos.
-- Registration with first name, last name, email, and phone.
-- Netlify Database stores reservations. A unique database constraint prevents two bookings for one slot.
-- Occupied slots show as **Full**.
-- Tonya Molhem and Rebecca Kaul can sign in to view registrants.
+- **Mommy & Me Photos:** Sunday, November 22, 2026, at Salt Bridge Farm, 1521 Silverton Road, Toms River, NJ. Fifteen 15-minute photo sessions start every 15 minutes from 9:00 a.m. through 12:30 p.m. Each registration receives 3–5 photos. A unique slot constraint prevents double booking.
+- **Mommy & Me Music Class:** Wednesday, November 25, 2026, at 9:30 a.m. Ten registrations for one class, without individual appointment times. A unique spot constraint caps registrations at ten.
+
+The homepage lists both events and shows current availability. Event pages collect first name, last name, email, and phone. Full photo times are disabled; music registration closes when all ten spots fill. The `/admin` page lets the two authorized staff members view registrants by event.
+
+The previous URL, https://hopesphotos.netlify.app, is a separate Netlify project that permanently redirects all paths to the matching path on the current site.
 
 ## Netlify setup
 
-The site is a Next.js application with `npm run build` and `.next` as its publish directory, configured in `netlify.toml`. Netlify Database uses the SQL migration in `netlify/database/migrations/`.
+This Next.js application uses `npm run build` and `.next` as its publish directory in `netlify.toml`. Netlify Database applies SQL migrations from `netlify/database/migrations/` on production deploys. The existing photo table is preserved when adding the music table.
 
-Set these secret environment variables in the Netlify project, with scope including Functions:
+The Netlify project needs these secret environment variables with Functions scope:
 
-- `ADMIN_PASSWORD` — the shared password for the two permitted admin emails.
-- `SESSION_SECRET` — a long, random secret used to sign admin sessions.
+- `ADMIN_PASSWORD` — shared password for the two permitted admin emails.
+- `SESSION_SECRET` — long, random secret for admin session signing.
 
-Do not put their values in Git or `netlify.toml`. Netlify must apply the database migration before registration can accept bookings.
+Do not put the values in Git or `netlify.toml`.
 
 ## Local development
 
-Requires Node.js 22.13 or newer. Install dependencies with `npm ci`, then run `npm run dev` for the frontend. To exercise database-backed routes locally, use Netlify CLI's `netlify dev` and `netlify database migrations apply`.
-
-Run `npm run build` and `npm run typecheck` before deploying.
+Requires Node.js 22.13 or newer. Install dependencies with `npm ci`, then run `npm run dev` for the frontend. Use `netlify dev` and `netlify database migrations apply` for local database-backed routes. Run `npm run typecheck` and `npm run build` before deploying.
